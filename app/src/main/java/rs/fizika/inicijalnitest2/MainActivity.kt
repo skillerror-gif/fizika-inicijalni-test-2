@@ -12,6 +12,7 @@ import android.os.SystemClock
 import android.view.Gravity
 import android.view.View
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RadioButton
 import android.widget.RadioGroup
@@ -35,7 +36,7 @@ class MainActivity : AppCompatActivity() {
     private val textDark = Color.parseColor("#14345E")
     private val muted = Color.parseColor("#58779E")
 
-    private lateinit var heroPanel: LinearLayout
+    private lateinit var heroPanel: ImageView
     private lateinit var title: TextView
     private lateinit var subtitle: TextView
     private lateinit var introText: TextView
@@ -85,37 +86,13 @@ class MainActivity : AppCompatActivity() {
             setBackgroundColor(Color.WHITE)
         }
 
-        heroPanel = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER
-            setPadding(dp(18), dp(15), dp(18), dp(15))
-            background = GradientDrawable(
-                GradientDrawable.Orientation.TL_BR,
-                intArrayOf(Color.parseColor("#083E86"), Color.parseColor("#1685F0"))
-            ).apply { cornerRadius = dp(28).toFloat() }
+        heroPanel = ImageView(this).apply {
+            setImageResource(R.drawable.hero_fizika2)
+            scaleType = ImageView.ScaleType.CENTER_CROP
+            background = rounded(Color.WHITE, Color.TRANSPARENT, 28f, 0)
+            clipToOutline = true
             elevation = dp(7).toFloat()
-
-            addView(TextView(this@MainActivity).apply {
-                text = "FIZIKA  2"
-                textSize = 34f
-                setTextColor(Color.WHITE)
-                setTypeface(Typeface.DEFAULT_BOLD)
-                gravity = Gravity.CENTER
-            }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
-
-            addView(TextView(this@MainActivity).apply {
-                text = "⚛"
-                textSize = 58f
-                setTextColor(Color.WHITE)
-                gravity = Gravity.CENTER
-            }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
-
-            addView(TextView(this@MainActivity).apply {
-                text = "▰  ▰  ▰"
-                textSize = 25f
-                setTextColor(Color.WHITE)
-                gravity = Gravity.CENTER
-            }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+            contentDescription = "Ilustracija fizike"
         }
         root.addView(heroPanel, LinearLayout.LayoutParams(dp(220), dp(220)).apply { bottomMargin = dp(20) })
 
