@@ -4,17 +4,12 @@ object QuestionBank {
     const val EASY = "EASY"
     const val HARD = "HARD"
 
-    private val quotas = linkedMapOf(
-        "Uvod" to 2,
-        "Kinematika" to 4,
-        "Dinamika translacionog kretanja" to 4,
-        "Dinamika rotacionog kretanja" to 2,
-        "Ravnoteža tela" to 2,
-        "Gravitacija" to 2,
-        "Zakoni održanja" to 4,
-    )
+    private fun Question(
+        text: String, options: List<String>, correct: Int, explanation: String,
+        area: String, subtopic: String, difficulty: String
+    ): Question = rs.fizika.inicijalnitest2.Question(text, options, correct, explanation)
 
-    fun allQuestions(): List<Question> = listOf(
+    private fun allQuestions(): List<Question> = listOf(
         Question("Koja od navedenih fizičkih veličina je vektorska?", listOf("masa", "vreme", "pomeraj", "temperatura"), 2, "Pomeraj ima intenzitet, pravac i smer.", "Uvod", "Vektori", EASY),
         Question("Koja je osnovna SI jedinica za dužinu?", listOf("centimetar", "metar", "kilometar", "milimetar"), 1, "Metar (m) je osnovna SI jedinica za dužinu.", "Uvod", "SI jedinice", EASY),
         Question("Koja od navedenih veličina je skalarna?", listOf("masa", "sila", "ubrzanje", "brzina"), 0, "Masa je skalarna veličina; određena je samo brojnom vrednošću i jedinicom.", "Uvod", "Skalari i vektori", EASY),
@@ -117,17 +112,19 @@ object QuestionBank {
         Question("Ako na sistem ne deluje spoljašnji moment sile, ukupan moment impulsa sistema:", listOf("raste", "opada", "ostaje konstantan", "mora biti nula"), 2, "Bez spoljašnjeg momenta sile moment impulsa se održava.", "Zakoni održanja", "Moment impulsa", HARD),
     )
 
-    fun buildTest(difficulty: String): List<Question> {
+    fun easyQuestions(): List<Question> = buildTest(EASY)
+    fun hardQuestions(): List<Question> = buildTest(HARD)
+
+    private fun buildTest(difficulty: String): List<Question> {
         val all = allQuestions()
         val selected = mutableListOf<Question>()
-        quotas.forEach { (area, count) ->
-            val preferred = all.filter { it.area == area && it.difficulty == difficulty }.shuffled()
-            selected += preferred.take(count)
-            if (selected.count { it.area == area } < count) {
-                val missing = count - selected.count { it.area == area }
-                selected += all.filter { it.area == area && it !in selected }.shuffled().take(missing)
-            }
-        }
+        selected += all.slice(if (difficulty == EASY) 0..3 else 4..7).shuffled().take(2)
+        selected += all.slice(if (difficulty == EASY) 8..18 else 19..29).shuffled().take(4)
+        selected += all.slice(if (difficulty == EASY) 30..38 else 39..47).shuffled().take(4)
+        selected += all.slice(if (difficulty == EASY) 48..53 else 54..59).shuffled().take(2)
+        selected += all.slice(if (difficulty == EASY) 60..64 else 65..69).shuffled().take(2)
+        selected += all.slice(if (difficulty == EASY) 70..74 else 75..79).shuffled().take(2)
+        selected += all.slice(if (difficulty == EASY) 80..89 else 90..99).shuffled().take(4)
         return selected.shuffled()
     }
 }
