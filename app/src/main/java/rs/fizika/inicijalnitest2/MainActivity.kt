@@ -6,6 +6,9 @@ import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.StateListDrawable
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.SystemClock
 import android.view.Gravity
 import android.view.View
 import android.widget.Button
@@ -37,9 +40,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var title: TextView
     private lateinit var subtitle: TextView
     private lateinit var introText: TextView
-    private lateinit var difficultyLabel: TextView
-    private lateinit var easyButton: Button
-    private lateinit var hardButton: Button
+    private lateinit var startButton: Button
     private lateinit var progress: TextView
     private lateinit var questionText: TextView
     private lateinit var optionsGroup: RadioGroup
@@ -49,12 +50,26 @@ class MainActivity : AppCompatActivity() {
     private lateinit var resultText: TextView
     private lateinit var restartButton: Button
     private lateinit var quoteText: TextView
+    private lateinit var timerText: TextView
 
     private var questions: List<Question> = emptyList()
     private var currentQuestion = 0
     private var score = 0
-    private var selectedLevel = ""
     private var answerChecked = false
+
+    private val timerHandler = Handler(Looper.getMainLooper())
+    private var testStartTime = 0L
+    private var elapsedMillis = 0L
+    private var timerRunning = false
+
+    private val timerRunnable = object : Runnable {
+        override fun run() {
+            if (!timerRunning) return
+            elapsedMillis = SystemClock.elapsedRealtime() - testStartTime
+            timerText.text = "⏱  Vreme: ${formatTime(elapsedMillis)}"
+            timerHandler.postDelayed(this, 1000)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -99,7 +114,7 @@ class MainActivity : AppCompatActivity() {
         root.addView(subtitle, matchWrap(bottom = 14))
 
         introText = TextView(this).apply {
-            text = "Proveri znanje iz prethodnog razreda\ni pripremi se za novi nivo!"
+            text = "20 nasumično izabranih pitanja iz gradiva prvog razreda\n10 lakših + 10 težih pitanja"
             textSize = 16f
             setTextColor(muted)
             gravity = Gravity.CENTER
@@ -107,41 +122,20 @@ class MainActivity : AppCompatActivity() {
         }
         root.addView(introText, matchWrap(bottom = 24))
 
-        difficultyLabel = TextView(this).apply {
-            text = "Izaberi težinu testa"
-            textSize = 18f
-            setTextColor(textDark)
+        startButton = Button(this).apply {
+            text = "Počni test  →"
+            textSize = 19f
+            setTextColor(Color.WHITE)
             setTypeface(Typeface.DEFAULT_BOLD)
-            gravity = Gravity.START
-        }
-        root.addView(difficultyLabel, matchWrap(bottom = 12))
-
-        easyButton = Button(this).apply {
-            text = "🎓   Lakši test\nOsnovna pitanja za proveru ključnih pojmova   ›"
-            textSize = 17f
-            setTextColor(darkBlue)
-            gravity = Gravity.START or Gravity.CENTER_VERTICAL
+            gravity = Gravity.CENTER
             isAllCaps = false
-            setPadding(dp(18), dp(16), dp(18), dp(16))
-            background = cardBackground()
+            background = rounded(blue, blue, 18f, 1)
             elevation = dp(5).toFloat()
         }
-        root.addView(easyButton, matchHeight(dp(100), bottom = 14))
-
-        hardButton = Button(this).apply {
-            text = "📊   Teži test\nSloženija pitanja za dublju proveru znanja   ›"
-            textSize = 17f
-            setTextColor(darkBlue)
-            gravity = Gravity.START or Gravity.CENTER_VERTICAL
-            isAllCaps = false
-            setPadding(dp(18), dp(16), dp(18), dp(16))
-            background = cardBackground()
-            elevation = dp(5).toFloat()
-        }
-        root.addView(hardButton, matchHeight(dp(100), bottom = 24))
+        root.addView(startButton, matchHeight(dp(64), bottom = 24))
 
         quoteText = TextView(this).apply {
-            text = "„Znanje je sila koja pokreće svet.“\n— N. Tesla"
+            text = "Srećno! Pažljivo pročitaj svako pitanje."
             textSize = 15f
             setTextColor(darkBlue)
             gravity = Gravity.CENTER
@@ -247,32 +241,83 @@ class MainActivity : AppCompatActivity() {
             setBackgroundColor(Color.WHITE)
             addView(root)
         }
-        setContentView(scrollView)
 
-        easyButton.setOnClickListener { startTest(QuestionBank.easyQuestions(), "Lakši test") }
-        hardButton.setOnClickListener { startTest(QuestionBank.hardQuestions(), "Teži test") }
+        timerText = TextView(this).apply {
+            text = "⏱  Vreme: 00:00"
+            textSize = 17f
+            setTextColor(darkBlue)
+            setTypeface(Typeface.DEFAULT_BOLD)
+            gravity = Gravity.CENTER
+            visibility = View.GONE
+            setPadding(dp(12), dp(13), dp(12), dp(13))
+            background = rounded(lightBlue, borderBlue, 0f, 1)
+        }
+
+        val screen = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setBackgroundColor(Color.WHITE)
+            addView(scrollView, LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                0,
+                1f
+            ))
+            addView(timerText, LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ))
+        }
+        setContentView(screen)
+
+        startButton.setOnClickListener { startTest() }
         nextButton.setOnClickListener { goToNextQuestion() }
         restartButton.setOnClickListener { showStartScreen() }
     }
 
-    private fun startTest(questionList: List<Question>, level: String) {
-        questions = questionList
-        selectedLevel = level
+    private fun startTest() {
+        val easy = QuestionBank.easyQuestions().shuffled().take(10)
+        val hard = QuestionBank.hardQuestions().shuffled().take(10)
+        questions = (easy + hard).shuffled()
+
         currentQuestion = 0
         score = 0
         heroIcon.visibility = View.GONE
         introText.visibility = View.GONE
-        difficultyLabel.visibility = View.GONE
-        easyButton.visibility = View.GONE
-        hardButton.visibility = View.GONE
+        startButton.visibility = View.GONE
         quoteText.visibility = View.GONE
-        subtitle.text = level
+        subtitle.text = "Test u toku"
         resultText.visibility = View.GONE
         restartButton.visibility = View.GONE
         progress.visibility = View.VISIBLE
         questionText.visibility = View.VISIBLE
         optionsGroup.visibility = View.VISIBLE
+        timerText.visibility = View.VISIBLE
+
+        startTimer()
         showQuestion()
+    }
+
+    private fun startTimer() {
+        timerHandler.removeCallbacks(timerRunnable)
+        elapsedMillis = 0L
+        testStartTime = SystemClock.elapsedRealtime()
+        timerRunning = true
+        timerText.text = "⏱  Vreme: 00:00"
+        timerHandler.post(timerRunnable)
+    }
+
+    private fun stopTimer() {
+        if (timerRunning) {
+            elapsedMillis = SystemClock.elapsedRealtime() - testStartTime
+            timerRunning = false
+            timerHandler.removeCallbacks(timerRunnable)
+        }
+    }
+
+    private fun formatTime(milliseconds: Long): String {
+        val totalSeconds = milliseconds / 1000
+        val minutes = totalSeconds / 60
+        val seconds = totalSeconds % 60
+        return String.format("%02d:%02d", minutes, seconds)
     }
 
     private fun showQuestion() {
@@ -317,15 +362,20 @@ class MainActivity : AppCompatActivity() {
         if (currentQuestion < questions.lastIndex) {
             currentQuestion++
             showQuestion()
-        } else showResult()
+        } else {
+            showResult()
+        }
     }
 
     private fun showResult() {
+        stopTimer()
         progress.visibility = View.GONE
         questionText.visibility = View.GONE
         optionsGroup.visibility = View.GONE
         explanationText.visibility = View.GONE
         nextButton.visibility = View.GONE
+        timerText.visibility = View.GONE
+
         val percent = score * 100 / questions.size
         val grade = when {
             percent >= 90 -> "Odlično!"
@@ -334,19 +384,19 @@ class MainActivity : AppCompatActivity() {
             percent >= 45 -> "Solidno!"
             else -> "Pokušaj ponovo!"
         }
+
         subtitle.text = "Inicijalni test"
-        resultText.text = "🏆\n\n$grade\n\n$percent%\n\n$score / ${questions.size} tačnih odgovora\n\n$selectedLevel"
+        resultText.text = "🏆\n\n$grade\n\n$percent%\n\n$score / ${questions.size} tačnih odgovora\n\n⏱ Vreme izrade: ${formatTime(elapsedMillis)}"
         resultText.visibility = View.VISIBLE
         restartButton.visibility = View.VISIBLE
     }
 
     private fun showStartScreen() {
+        stopTimer()
         subtitle.text = "Inicijalni test"
         heroIcon.visibility = View.VISIBLE
         introText.visibility = View.VISIBLE
-        difficultyLabel.visibility = View.VISIBLE
-        easyButton.visibility = View.VISIBLE
-        hardButton.visibility = View.VISIBLE
+        startButton.visibility = View.VISIBLE
         quoteText.visibility = View.VISIBLE
         progress.visibility = View.GONE
         questionText.visibility = View.GONE
@@ -355,6 +405,12 @@ class MainActivity : AppCompatActivity() {
         nextButton.visibility = View.GONE
         resultText.visibility = View.GONE
         restartButton.visibility = View.GONE
+        timerText.visibility = View.GONE
+    }
+
+    override fun onDestroy() {
+        timerHandler.removeCallbacks(timerRunnable)
+        super.onDestroy()
     }
 
     private fun cardBackground() = rounded(Color.WHITE, borderBlue, 20f, 1)
