@@ -1,8 +1,11 @@
 <resources>
-    <color name="physics_navy">#07182F</color>
-    <color name="physics_navy_2">#0B2545</color>
-    <color name="physics_blue">#1267D8</color>
-    <color name="physics_cyan">#24C7F4</color>
-    <color name="physics_white">#F7FBFF</color>
-    <color name="physics_muted">#B8CCE5</color>
+    <color name="physics_navy">#0B2A4A</color>
+    <color name="physics_navy_2">#174F86</color>
+    <color name="physics_blue">#1565C0</color>
+    <color name="physics_cyan">#42A5F5</color>
+    <color name="physics_white">#FFFFFF</color>
+    <color name="physics_muted">#5B7390</color>
+    <color name="physics_light_blue">#EAF4FF</color>
+    <color name="physics_border">#2F80D1</color>
+    <color name="physics_shadow">#A8CFF4</color>
 </resources>
