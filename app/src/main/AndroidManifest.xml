@@ -2,7 +2,7 @@
     <application
         android:allowBackup="true"
         android:label="Fizika - inicijalni test 2"
-        android:theme="@style/Theme.FizikaTest">
+        android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar">
 
         <activity
             android:name=".MainActivity"
