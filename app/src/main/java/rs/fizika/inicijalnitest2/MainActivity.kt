@@ -71,7 +71,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         heroIcon = ImageView(this).apply {
-            setImageResource(com.fizika.inicijalnitest2.R.drawable.ic_launcher)
+            setImageResource(R.drawable.ic_launcher)
             scaleType = ImageView.ScaleType.CENTER_CROP
             background = rounded(Color.WHITE, borderBlue, 22f, 1)
             elevation = dp(8).toFloat()
@@ -249,12 +249,8 @@ class MainActivity : AppCompatActivity() {
         }
         setContentView(scrollView)
 
-        easyButton.setOnClickListener {
-            startTest(QuestionBank.easyQuestions(), "Lakši test")
-        }
-        hardButton.setOnClickListener {
-            startTest(QuestionBank.hardQuestions(), "Teži test")
-        }
+        easyButton.setOnClickListener { startTest(QuestionBank.easyQuestions(), "Lakši test") }
+        hardButton.setOnClickListener { startTest(QuestionBank.hardQuestions(), "Teži test") }
         nextButton.setOnClickListener { goToNextQuestion() }
         restartButton.setOnClickListener { showStartScreen() }
     }
@@ -264,7 +260,6 @@ class MainActivity : AppCompatActivity() {
         selectedLevel = level
         currentQuestion = 0
         score = 0
-
         heroIcon.visibility = View.GONE
         introText.visibility = View.GONE
         difficultyLabel.visibility = View.GONE
@@ -272,7 +267,6 @@ class MainActivity : AppCompatActivity() {
         hardButton.visibility = View.GONE
         quoteText.visibility = View.GONE
         subtitle.text = level
-
         resultText.visibility = View.GONE
         restartButton.visibility = View.GONE
         progress.visibility = View.VISIBLE
@@ -302,14 +296,12 @@ class MainActivity : AppCompatActivity() {
         if (answerChecked) return
         val selectedId = optionsGroup.checkedRadioButtonId
         if (selectedId == -1) return
-
         val selectedAnswer = optionButtons.indexOfFirst { it.id == selectedId }
         val question = questions[currentQuestion]
         val isCorrect = selectedAnswer == question.correct
         if (isCorrect) score++
         answerChecked = true
         optionButtons.forEach { it.isEnabled = false }
-
         explanationText.text = if (isCorrect) {
             "✓  Tačan odgovor!\n\n${question.explanation}"
         } else {
@@ -325,9 +317,7 @@ class MainActivity : AppCompatActivity() {
         if (currentQuestion < questions.lastIndex) {
             currentQuestion++
             showQuestion()
-        } else {
-            showResult()
-        }
+        } else showResult()
     }
 
     private fun showResult() {
@@ -336,7 +326,6 @@ class MainActivity : AppCompatActivity() {
         optionsGroup.visibility = View.GONE
         explanationText.visibility = View.GONE
         nextButton.visibility = View.GONE
-
         val percent = score * 100 / questions.size
         val grade = when {
             percent >= 90 -> "Odlično!"
@@ -379,14 +368,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun rounded(fill: Int, stroke: Int, radiusDp: Float, strokeDp: Int): GradientDrawable {
-        return GradientDrawable().apply {
+    private fun rounded(fill: Int, stroke: Int, radiusDp: Float, strokeDp: Int): GradientDrawable =
+        GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
             setColor(fill)
             cornerRadius = dp(radiusDp.toInt()).toFloat()
             if (strokeDp > 0 && stroke != Color.TRANSPARENT) setStroke(dp(strokeDp), stroke)
         }
-    }
 
     private fun matchWrap(bottom: Int = 0): LinearLayout.LayoutParams =
         LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
