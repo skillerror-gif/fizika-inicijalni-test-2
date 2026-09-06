@@ -30,8 +30,8 @@ jobs:
 
       - name: Restore 480x528 hero image
         run: |
-          base64 -d app/src/main/res/drawable-nodpi/fizika2_hero_b64.txt > app/src/main/res/drawable-nodpi/fizika2_hero.jpg
-          rm -f app/src/main/res/drawable-nodpi/fizika2_hero_b64.txt
+          cat app/src/main/res/drawable-nodpi/fizika2_hero_00.txt app/src/main/res/drawable-nodpi/fizika2_hero_01.txt app/src/main/res/drawable-nodpi/fizika2_hero_02.txt app/src/main/res/drawable-nodpi/fizika2_hero_03.txt | base64 -d > app/src/main/res/drawable-nodpi/fizika2_hero.jpg
+          rm -f app/src/main/res/drawable-nodpi/fizika2_hero_*.txt app/src/main/res/drawable-nodpi/fizika2_hero_b64.txt
           file app/src/main/res/drawable-nodpi/fizika2_hero.jpg
           test -s app/src/main/res/drawable-nodpi/fizika2_hero.jpg
 
