@@ -28,10 +28,10 @@ jobs:
       - name: Install Android SDK 35
         run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
 
-      - name: Restore 480x528 hero image
+      - name: Restore 320x352 RGB hero image
         run: |
-          base64 -d app/src/main/res/drawable-nodpi/fizika2_hero_b64.txt > app/src/main/res/drawable-nodpi/fizika2_hero.jpg
-          rm -f app/src/main/res/drawable-nodpi/fizika2_hero_b64.txt
+          base64 -d app/src/main/res/drawable-nodpi/fizika2_hero_320_b64.txt > app/src/main/res/drawable-nodpi/fizika2_hero.jpg
+          rm -f app/src/main/res/drawable-nodpi/fizika2_hero_320_b64.txt
           file app/src/main/res/drawable-nodpi/fizika2_hero.jpg
           test -s app/src/main/res/drawable-nodpi/fizika2_hero.jpg
 
